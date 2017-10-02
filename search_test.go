@@ -43,7 +43,9 @@ func TestGetAttributeValue(t *testing.T) {
 	if entry.GetAttributeValue("Alpha") != "value" {
 		t.Errorf("failed to get attribute in original case")
 	}
+    CaseInsensitive = true
 	if entry.GetAttributeValue("alpha") != "value" {
 		t.Errorf("failed to get attribute in changed case")
 	}
+    CaseInsensitive = false
 }

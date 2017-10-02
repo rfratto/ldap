@@ -98,6 +98,10 @@ var DerefMap = map[int]string{
 	DerefAlways:         "DerefAlways",
 }
 
+// CaseInsensitive sets whether attribute names in Get(Raw)AttributeValue(s) are
+// compared case insensitive
+var CaseInsensitive = false
+
 // NewEntry returns an Entry object with the specified distinguished name and attribute key-value pairs.
 // The map of attributes is accessed in alphabetical order of the keys in order to ensure that, for the
 // same input map of attributes, the output entry will contain the same order of attributes
@@ -126,11 +130,18 @@ type Entry struct {
 	Attributes []*EntryAttribute
 }
 
+func noChanges(s string) string { return s }
+
 // GetAttributeValues returns the values for the named attribute, or an empty list
 func (e *Entry) GetAttributeValues(attribute string) []string {
-	attribute = strings.ToLower(attribute)
+	var transform func(string) string = noChanges
+	if CaseInsensitive {
+		transform = strings.ToLower
+	}
+
+	attribute = transform(attribute)
 	for _, attr := range e.Attributes {
-		if strings.ToLower(attr.Name) == attribute {
+		if transform(attr.Name) == attribute {
 			return attr.Values
 		}
 	}
@@ -139,9 +150,14 @@ func (e *Entry) GetAttributeValues(attribute string) []string {
 
 // GetRawAttributeValues returns the byte values for the named attribute, or an empty list
 func (e *Entry) GetRawAttributeValues(attribute string) [][]byte {
-	attribute = strings.ToLower(attribute)
+	var transform func(string) string = noChanges
+	if CaseInsensitive {
+		transform = strings.ToLower
+	}
+
+	attribute = transform(attribute)
 	for _, attr := range e.Attributes {
-		if strings.ToLower(attr.Name) == attribute {
+		if transform(attr.Name) == attribute {
 			return attr.ByteValues
 		}
 	}
